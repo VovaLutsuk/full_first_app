@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '/database.dart';
 
 class LoginScreen extends StatefulWidget {
-  final Function(int) onLogin; // Додано onLogin
+  final Function(int) onLogin;
 
   LoginScreen({required this.onLogin});
 
@@ -13,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _deleteEmailController = TextEditingController();
+  final _resetEmailController = TextEditingController();
 
   Future<void> _login() async {
     final email = _emailController.text;
@@ -21,7 +23,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final user = await DatabaseHelper.getUserByEmail(email);
 
     if (user == null) {
-      // Якщо користувач не знайдений
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Користувача з такою електронною поштою не існує')),
       );
@@ -29,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (user['password'] == password) {
-      widget.onLogin(user['id']); // Викликаємо onLogin
+      widget.onLogin(user['id']);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Вхід успішний!')),
@@ -45,6 +46,49 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text('Неправильний email або пароль')),
       );
     }
+  }
+
+  Future<void> _deleteAccount() async {
+    final email = _deleteEmailController.text;
+
+    final user = await DatabaseHelper.getUserByEmail(email);
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Користувача з такою електронною поштою не існує')),
+      );
+      return;
+    }
+
+    await DatabaseHelper.deleteUserByEmail(email);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Акаунт успішно видалено')),
+    );
+
+    Navigator.pop(context);
+  }
+
+  Future<void> _resetPassword() async {
+    final email = _resetEmailController.text;
+
+    final user = await DatabaseHelper.getUserByEmail(email);
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Користувача з такою електронною поштою не існує')),
+      );
+      return;
+    }
+
+    const newPassword = '123123';
+    await DatabaseHelper.updatePassword(user['id'], newPassword);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Пароль відновлено. Новий пароль: $newPassword')),
+    );
+
+    Navigator.pop(context);
   }
 
   @override
@@ -76,9 +120,67 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/password_recovery');
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Відновити пароль'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            controller: _resetEmailController,
+                            decoration: InputDecoration(labelText: 'Електронна пошта'),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Скасувати'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _resetPassword,
+                          child: Text('Відновити'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: Text('Відновити пароль'),
+            ),
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Видалити акаунт'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextField(
+                            controller: _deleteEmailController,
+                            decoration: InputDecoration(labelText: 'Електронна пошта'),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Скасувати'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _deleteAccount,
+                          child: Text('Видалити'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Text('Видалити акаунт'),
             ),
           ],
         ),

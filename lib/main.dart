@@ -4,9 +4,9 @@ import 'screens/expenses_screen.dart';
 import 'screens/income_screen.dart';
 import 'autorization/login_screen.dart';
 import 'autorization/registration_screen.dart';
-import 'autorization/password_recovery_screen.dart';
+
 import 'database.dart';
-import 'filter_button.dart'; // Імпортуємо новий файл
+import 'filter_button.dart';
 
 void main() {
   runApp(ExpenseTrackerApp());
@@ -21,7 +21,6 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
   bool isLoggedIn = false;
   int? userId;
 
-  // Функція для авторизації
   void _login(int id) {
     setState(() {
       isLoggedIn = true;
@@ -29,7 +28,6 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
     });
   }
 
-  // Функція для виходу
   void _logout(BuildContext context) {
     setState(() {
       isLoggedIn = false;
@@ -38,7 +36,6 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
-  // Функція для додавання запису
   void _addRecord(Map<String, dynamic> record) {
     DatabaseHelper.addRecord(
       record['user_id'],
@@ -88,7 +85,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _records = [];
-  FilterState _filterState = FilterState.all;  // Стан фільтрації
+  FilterState _filterState = FilterState.all;
 
   @override
   void initState() {

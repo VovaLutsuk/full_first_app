@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 class DatabaseHelper {
   static Database? _database;
 
-  // Ініціалізація бази даних
   static Future<Database> getDatabase() async {
     if (_database != null) return _database!;
 
@@ -37,7 +36,6 @@ class DatabaseHelper {
     return _database!;
   }
 
-  // Додавання нового користувача
   static Future<int> addUser(String username, String email, String password) async {
     final db = await getDatabase();
     return await db.insert(
@@ -51,7 +49,7 @@ class DatabaseHelper {
     );
   }
 
-  // Перевірка існування користувача за email
+
   static Future<Map<String, dynamic>?> getUserByEmail(String email) async {
     final db = await getDatabase();
     final List<Map<String, dynamic>> result = await db.query(
@@ -62,7 +60,7 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first : null;
   }
 
-  // Оновлення пароля користувача
+
   static Future<int> updatePassword(int id, String newPassword) async {
     final db = await getDatabase();
     return await db.update(
@@ -73,7 +71,7 @@ class DatabaseHelper {
     );
   }
 
-  // Додавання запису (витрати або прибутки)
+
   static Future<int> addRecord(
       int userId,
       String type,
@@ -97,7 +95,7 @@ class DatabaseHelper {
     );
   }
 
-  // Завантаження всіх записів для конкретного користувача
+
   static Future<List<Map<String, dynamic>>> getUserRecords(int userId) async {
     final db = await getDatabase();
     return await db.query(
@@ -108,7 +106,7 @@ class DatabaseHelper {
     );
   }
 
-  // Видалення запису за його ID
+
   static Future<int> deleteRecord(int id) async {
     final db = await getDatabase();
     return await db.delete(
@@ -118,7 +116,17 @@ class DatabaseHelper {
     );
   }
 
-  // Закриття бази даних
+
+  static Future<int> deleteUserByEmail(String email) async {
+    final db = await getDatabase();
+    return await db.delete(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email],
+    );
+  }
+
+
   static Future<void> closeDatabase() async {
     final db = _database;
     if (db != null) {
@@ -127,3 +135,4 @@ class DatabaseHelper {
     _database = null;
   }
 }
+
